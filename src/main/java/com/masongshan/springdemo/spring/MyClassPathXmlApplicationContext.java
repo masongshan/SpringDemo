@@ -12,14 +12,22 @@ import java.util.List;
 import java.util.Map;
 
 public class MyClassPathXmlApplicationContext {
-    private List<BeanDefinition> beanDefinitions = new ArrayList<BeanDefinition>();
+    private List<BeanDefinition> beanDefinitions = new ArrayList<>();
+    private Map<String, Object> beanInstances = new HashMap<>();
 
     public MyClassPathXmlApplicationContext(String filename) {
         readXml(filename);
+        instanceBeans();
     }
 
-    public BeanDefinition getInstance() {
-        return null;
+    /**
+     * 获得实例对象
+     *
+     * @param name bean id
+     * @return bean实例
+     */
+    public Object getInstance(String name) {
+        return beanInstances.get(name);
     }
 
     /**
@@ -33,7 +41,7 @@ public class MyClassPathXmlApplicationContext {
         try {
             URL xmlPath = this.getClass().getClassLoader().getResource(filename);
             document = saxReader.read(xmlPath);
-            Map<String, String> nsMap = new HashMap<String, String>();
+            Map<String, String> nsMap = new HashMap<>();
             nsMap.put("ns", "http://www.springframework.org/schema/beans");
             XPath xsub = document.createXPath("//ns:beans/ns:bean");
             xsub.setNamespaceURIs(nsMap);
@@ -50,9 +58,15 @@ public class MyClassPathXmlApplicationContext {
     }
 
     /**
-     * TODO 实例化Bean
+     *  实例化Bean
      */
-    private void instanceBean() {
-
+    private void instanceBeans() {
+        for (BeanDefinition bean: beanDefinitions) {
+            try {
+                beanInstances.put(bean.getId(), Class.forName(bean.getClazz()).newInstance());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
