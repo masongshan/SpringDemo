@@ -4,7 +4,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean id="user" class="com.masongshan.springdemo.entity.User"/>
+    <bean id="userDAO" class="com.masongshan.springdemo.dao.UserDAO"/>
+    <bean id="userService" class="com.masongshan.springdemo.service.impl.UserServiceImpl">
+        <property name="userDAO" ref="userDAO"/>
+    </bean>
 
     <!--    <bean id="exceptionHandler" class="net.crm.base.exception.MyExceptionHandler"/>
 
