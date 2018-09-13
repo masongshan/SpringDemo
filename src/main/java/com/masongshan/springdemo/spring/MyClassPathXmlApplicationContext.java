@@ -1,5 +1,6 @@
 package com.masongshan.springdemo.spring;
 
+import org.apache.commons.beanutils.ConvertUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.XPath;
@@ -58,7 +59,8 @@ public class MyClassPathXmlApplicationContext {
                 for (Element property: properties) {
                     String propertyName = property.attributeValue("name");
                     String propertyRef = property.attributeValue("ref");
-                    PropertyDefinition propertyDefinition = new PropertyDefinition(propertyName, propertyRef);
+                    String propertyValue = property.attributeValue("value");
+                    PropertyDefinition propertyDefinition = new PropertyDefinition(propertyName, propertyRef, propertyValue);
                     propertyDefinitions.add(propertyDefinition);
                 }
                 BeanDefinition beanDefinition = new BeanDefinition(id, clazz, propertyDefinitions);
@@ -96,11 +98,20 @@ public class MyClassPathXmlApplicationContext {
         Object beanObject = clazz.newInstance();
         // 依赖注入
         for (PropertyDefinition property: bean.getPropertyDefinitions()) {
+            Object dependency = null;
             String id = property.getRef();
-            Object dependencyBean = getDependencyBean(id);
+            if (id == null) {
+                // 基本类型依赖
+//                Field field = clazz.getField(property.getName()); // 只能获得公共属性
+                Field field = clazz.getDeclaredField(property.getName());
+                dependency = ConvertUtils.convert(property.getValue(), field.getType());
+            } else {
+                // bean依赖
+                dependency = getDependencyBean(id);
+            }
             Field field = clazz.getDeclaredField(property.getName());
             field.setAccessible(true);
-            field.set(beanObject, dependencyBean);
+            field.set(beanObject, dependency);
         }
         return beanObject;
     }

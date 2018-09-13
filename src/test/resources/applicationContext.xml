@@ -7,6 +7,8 @@
     <bean id="userDAO" class="com.masongshan.springdemo.dao.UserDAO"/>
     <bean id="userService" class="com.masongshan.springdemo.service.impl.UserServiceImpl">
         <property name="userDAO" ref="userDAO"/>
+        <property name="testIntegerAttr" value="1"/>
+        <property name="testStringAttr" value="testString"/>
     </bean>
 
     <!--    <bean id="exceptionHandler" class="net.crm.base.exception.MyExceptionHandler"/>
